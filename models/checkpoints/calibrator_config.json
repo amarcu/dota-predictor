@@ -1,0 +1,25 @@
+{
+  "phases": {
+    "early": {
+      "minutes": [
+        1,
+        10
+      ],
+      "calibrator": "calibrator_early.json"
+    },
+    "mid": {
+      "minutes": [
+        11,
+        25
+      ],
+      "calibrator": "calibrator_mid.json"
+    },
+    "late": {
+      "minutes": [
+        26,
+        60
+      ],
+      "calibrator": "calibrator_late.json"
+    }
+  }
+}

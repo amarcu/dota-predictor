@@ -1,0 +1,97 @@
+# Dota Predictor - Cursor Rules
+
+## ⚡ SESSION CHECKLIST (CRITICAL)
+
+### 🟢 Before Starting:
+- [ ] Read `agent/context/project_state.md` for current capabilities
+- [ ] Scan `agent/iterations/` for recent work (last 2-3 entries)
+- [ ] Check `agent/notes/issues_encountered.md` for known problems
+
+### 🔴 Before Ending (Non-Trivial Work Only):
+- [ ] Update `agent/context/project_state.md` if capabilities changed
+- [ ] Add `agent/iterations/YYYY-MM-DD_summary.md` for work done
+- [ ] Add to `agent/decisions/` if architectural choices were made
+- [ ] Add to `agent/notes/issues_encountered.md` if problems solved
+
+**Non-trivial = features, bug fixes requiring investigation, architectural decisions.**
+**Skip for = simple questions, typo fixes, exploration without changes.**
+
+---
+
+## 🎮 Project Context
+
+**Stack:** Python 3.10+, PyTorch, OpenDota API, numpy, pandas, aiohttp
+
+**Structure:**
+```
+src/dota_predictor/
+├── api/        # OpenDota client (async)
+├── data/       # Match/MatchPlayer dataclasses, Dataset
+├── models/     # LSTMPredictor, baselines
+├── features/   # Feature extraction → numpy arrays
+├── inference/  # GSI server, predictor
+└── utils/      # Config, training utilities
+```
+
+**Key Patterns:**
+- Dataclasses for data models (`Match`, `MatchPlayer`)
+- Feature extraction returns numpy arrays
+- Models inherit from `nn.Module`
+- Async client for batch API operations
+- API key in `.env` (never committed)
+
+---
+
+## 🔧 After Code Changes
+
+```bash
+# 1. Lint changed files
+ruff check src/dota_predictor/changed_file.py
+
+# 2. Type check
+mypy src/
+
+# 3. Test
+pytest tests/
+
+# 4. Format
+ruff format .
+```
+
+Fix only errors in files you changed. Ignore pre-existing errors.
+
+---
+
+## 📋 Quick Reference
+
+| Task | Command |
+|------|---------|
+| Install deps | `pip install -e .` |
+| Fetch data | `python scripts/fetch_data.py` |
+| Train model | `python scripts/train.py` |
+| Run tests | `pytest tests/` |
+| Live predict | `python scripts/live_predict.py` |
+
+---
+
+## 🧠 Working Principles
+
+### Before Starting Any Task
+- **Read first:** Check `README.md`, relevant docs, and existing code before making changes
+- **Understand context:** Review related files to understand patterns and conventions
+
+### Collaboration Style
+- **Suggest vs. Apply:** Prefix with "Suggestion:" for review or "Applying:" for direct changes
+- **Standard check-in** (for significant changes):
+  > "Confirming: I've reviewed [context]. Goal is [X], following [pattern]. Proceeding with [step]."
+
+### Code Changes
+- **Edit, don't copy:** Modify existing files directly. Never create `file-v2.py` or `file_new.py`
+- **Test before fix:** When fixing bugs, write a test that reproduces it *before* fixing
+- **Comments explain what/why, not process:**
+  - ✅ "Uses binary search for O(log n) lookup"
+  - ❌ "Changed from linear to binary search" (process comment)
+
+### Debugging
+- Check `agent/notes/issues_encountered.md` for similar past problems
+- Fix root causes, not symptoms
