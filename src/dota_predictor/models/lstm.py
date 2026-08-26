@@ -127,6 +127,13 @@ class LSTMPredictor(nn.Module):
         """
         batch_size = features.size(0)
 
+        # Both heads are sized for hero features whenever the embedding is enabled,
+        # so unknown picks go through the padding index instead of being skipped.
+        if self.use_hero_embedding and heroes is None:
+            heroes = torch.zeros(
+                batch_size, 10, dtype=torch.long, device=features.device
+            )
+
         # Process time-series with LSTM
         lstm_out, (hidden, _) = self.lstm(features)
         # lstm_out: (batch, seq_len, hidden_size * directions)
