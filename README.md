@@ -23,9 +23,9 @@ Personal side project. Python 3.10+, PyTorch, NumPy, scikit-learn, SQLite.
 - **Shipped checkpoint** — `models/checkpoints/model.pt`; its embedded
   training history records **94.1% validation accuracy at the final minute**
   (see [Shipped model](#shipped-model) for exactly what is and isn't recorded).
-- **Inference** — predict a historical match by ID or attach to a live game
-  through GSI. An optional Polymarket integration shows market odds next to
-  the model's probability while spectating pro matches.
+- **Inference** — predict a historical match by ID, run a simulated demo, or
+  attach to a live game through GSI. An optional Polymarket integration shows
+  market odds next to the model's probability while spectating pro matches.
 
 The setup follows Akhmedov & Phan, *Machine learning models for DOTA 2
 outcomes prediction* ([arXiv:2106.01782](https://arxiv.org/abs/2106.01782)).
@@ -191,6 +191,17 @@ Final Prediction: Radiant (92.7%)
 Actual Result:    Radiant
 ```
 
+### Run the demo (no Dota 2 required)
+
+```bash
+python scripts/live_predict.py --demo     # or: make demo
+```
+
+Simulates a 30-minute match in which Radiant builds an early lead and Dire
+comes back, printing the probability minute by minute. No lineup is set, so
+the hero branch sees only the padding embedding and the trajectory reflects
+the economy features alone.
+
 ### Retrain from scratch
 
 ```bash
@@ -304,11 +315,6 @@ this repository, with these gaps worth knowing about:
   passes no calibrator (a code comment notes that raw outputs tracked Dota
   Plus's in-game estimate more closely), and `predict_match.py` never loads
   one, so the three calibrator files are unused by the entry points.
-- **The built-in demo is broken with the shipped model.** `live_predict.py
-  --demo` (and `make demo`) never sets hero IDs, and the per-minute head
-  requires the hero embedding, so the first prediction fails with a shape
-  mismatch (`60x128 and 448x1`). Live mode hits the same path if the GSI
-  payload doesn't yield all 10 hero IDs.
 - **Live mode sees fewer signals than training.** From GSI the predictor fills
   gold (net worth), XP (approximated as XP-per-minute × elapsed minutes), last
   hits, kills and heroes. Tower, barracks and Roshan features stay at their
