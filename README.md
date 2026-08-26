@@ -23,9 +23,9 @@ Personal side project. Python 3.10+, PyTorch, NumPy, scikit-learn, SQLite.
 - **Shipped checkpoint** — `models/checkpoints/model.pt`; its embedded
   training history records **94.1% validation accuracy at the final minute**
   (see [Shipped model](#shipped-model) for exactly what is and isn't recorded).
-- **Inference** — predict a historical match by ID, run a simulated demo, or
-  attach to a live game through GSI. An optional Polymarket integration shows
-  market odds next to the model's probability while spectating pro matches.
+- **Inference** — predict a historical match by ID or attach to a live game
+  through GSI. An optional Polymarket integration shows market odds next to
+  the model's probability while spectating pro matches.
 
 The setup follows Akhmedov & Phan, *Machine learning models for DOTA 2
 outcomes prediction* ([arXiv:2106.01782](https://arxiv.org/abs/2106.01782)).
@@ -175,15 +175,21 @@ python scripts/predict_match.py --match-id 8610327187
 The script prints both lineups, the win probability at 5-minute intervals
 (computed by zeroing out everything after that minute, so no future
 information leaks in), and the final prediction against the actual result.
+Output for the match above, a 35-minute Radiant win — note the model moving
+to Radiant at minute 15 while Radiant is still slightly behind in gold:
 
-### Run the demo (no Dota 2 required)
-
-```bash
-python scripts/live_predict.py --demo     # or: make demo
 ```
+Min 05 | Gold:     -903 | [██████████████████░░░░░░░░░░░░░░░░░░░░░░] | ⚪ 45.9%
+Min 10 | Gold:   -1,438 | [█████████████████░░░░░░░░░░░░░░░░░░░░░░░] | 🔴 43.8%
+Min 15 | Gold:     -177 | [██████████████████████░░░░░░░░░░░░░░░░░░] | 🟢 56.5%
+Min 20 | Gold:     -462 | [███████████████████████████░░░░░░░░░░░░░] | 🟢 69.9%
+Min 25 | Gold:   +3,080 | [███████████████████████████░░░░░░░░░░░░░] | 🟢 69.2%
+Min 30 | Gold:   +5,499 | [█████████████████████████████░░░░░░░░░░░] | 🟢 73.5%
+Min 35 | Gold:  +19,128 | [█████████████████████████████████████░░░] | 🟢 92.7%
 
-Simulates a 30-minute match in which Radiant builds an early lead and Dire
-comes back, printing the probability minute by minute.
+Final Prediction: Radiant (92.7%)
+Actual Result:    Radiant
+```
 
 ### Retrain from scratch
 
@@ -293,6 +299,11 @@ this repository, with these gaps worth knowing about:
   passes no calibrator (a code comment notes that raw outputs tracked Dota
   Plus's in-game estimate more closely), and `predict_match.py` never loads
   one, so the three calibrator files are unused by the entry points.
+- **The built-in demo is broken with the shipped model.** `live_predict.py
+  --demo` (and `make demo`) never sets hero IDs, and the per-minute head
+  requires the hero embedding, so the first prediction fails with a shape
+  mismatch (`60x128 and 448x1`). Live mode hits the same path if the GSI
+  payload doesn't yield all 10 hero IDs.
 - **Live mode sees fewer signals than training.** From GSI the predictor fills
   gold (net worth), XP (approximated as XP-per-minute × elapsed minutes), last
   hits, kills and heroes. Tower, barracks and Roshan features stay at their
@@ -301,8 +312,8 @@ this repository, with these gaps worth knowing about:
 - **Hero vocabulary is frozen by the training data.** The embedding covers hero
   IDs up to 145; a lineup containing a newer, higher-ID hero will fail lookup
   until the model is retrained on matches that include it.
-- **Tests cover the data models only** (`tests/test_data_models.py`); the
-  model, training loop and GSI parsing are untested.
+- **Tests cover the data models only** (`tests/test_data_models.py`, 9 passing
+  tests); the model, training loop and GSI parsing are untested.
 - `LogisticRegressionBaseline`, `SimpleNNBaseline`, `LSTMWithAttention`,
   `FeatureExtractor` and `DotaDataset` exist in the package but no script uses
   them; the pipeline goes through `process_data.py`'s NumPy arrays instead.
