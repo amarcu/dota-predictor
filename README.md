@@ -247,10 +247,15 @@ python scripts/find_games.py --live
 python scripts/spectate.py --slug dota2-l1ga-vpp-2025-12-22
 ```
 
-Markets exist only for tournament matches, not public matchmaking. The
-`PolymarketClient` class also contains order-placement methods (behind the
-optional `py-clob-client` package and wallet environment variables), but no
-script in this repository calls them.
+Markets exist only for tournament matches, not public matchmaking. If
+`gamma-api.polymarket.com` is geo-blocked where you are, `.env.example` shows
+how to route only the Polymarket requests through a local SOCKS proxy
+(`POLYMARKET_PROXY=socks5h://...`, e.g. Cloudflare WARP's local proxy) while
+Dota 2 keeps its direct connection; the client also falls back to
+DNS-over-HTTPS when system DNS can't resolve the host. The `PolymarketClient`
+class also contains order-placement methods (behind the optional
+`py-clob-client` package and wallet environment variables), but no script in
+this repository calls them.
 
 ## Project structure
 
